@@ -11,7 +11,7 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/wearevest/email/nats"
+
 )
 
 //Client wraps a nats connection and provides a subject that implements it
