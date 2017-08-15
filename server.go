@@ -9,6 +9,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/nats-io/go-nats"
 	log "github.com/sirupsen/logrus"
+	"github.com/wearevest/email/nats"
 )
 
 // Server wraps an endpoint and implements grpc.Handler.
@@ -76,6 +77,8 @@ func (s Server) MsgHandler(msg *nats.Msg) {
 	if err != nil {
 		s.logger.Error("Can't connect: %v\n", err)
 	}
+
+	defer nc.Close()
 
 	// Non-nil non empty context to take the place of the first context in th chain of handling.
 	ctx := context.TODO()

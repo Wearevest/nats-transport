@@ -11,6 +11,7 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/wearevest/email/nats"
 )
 
 //Client wraps a nats connection and provides a subject that implements it
@@ -87,6 +88,7 @@ func (c Client) Endpoint() endpoint.Endpoint {
 		if err != nil {
 			c.logger.Error("Can't connect: %v\n", err)
 		}
+		defer nc.Close()
 
 		var msg *nats.Msg
 		ctx, cancel := context.WithCancel(ctx)
