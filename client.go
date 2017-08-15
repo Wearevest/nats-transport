@@ -8,6 +8,9 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/nats-io/go-nats"
 	"time"
+	"os"
+
+	log "github.com/sirupsen/logrus"
 )
 
 //Client wraps a nats connection and provides a subject that implements it
@@ -20,6 +23,7 @@ type Client struct {
 	before      []ClientRequestFunc
 	after       []ClientResponseFunc
 	natsReply   reflect.Type
+	logger log.Logger
 }
 
 // NewClient constructs a usable Client for a single remote endpoint.
@@ -74,6 +78,16 @@ func ClientAfter(after ...ClientResponseFunc) ClientOption {
 // client.
 func (c Client) Endpoint() endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
+
+		urls := fmt.Sprint(os.Getenv("NATS_SERVER"), ", ", fmt.Sprintf("nats://%v:%v", os.Getenv("NATS_SERVICE_HOST"), os.Getenv("NATS_SERVICE_PORT")))
+
+		c.logger.Info(urls)
+
+		nc, err := nats.Connect(urls)
+		if err != nil {
+			c.logger.Error("Can't connect: %v\n", err)
+		}
+
 		var msg *nats.Msg
 		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()
@@ -83,7 +97,7 @@ func (c Client) Endpoint() endpoint.Endpoint {
 			return nil, err
 		}
 
-		if msg, err = c.client.Request(c.subject, req, time.Second * 10); err != nil {
+		if msg, err = nc.Request(c.subject, req, time.Second * 10); err != nil {
 			return nil, err
 		}
 
