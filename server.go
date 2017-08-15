@@ -9,7 +9,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/nats-io/go-nats"
 	log "github.com/sirupsen/logrus"
-	"github.com/wearevest/email/nats"
+
 )
 
 // Server wraps an endpoint and implements grpc.Handler.
