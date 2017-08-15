@@ -3,14 +3,16 @@ package nats
 import (
 	"context"
 
-	log "github.com/sirupsen/logrus"
+	"fmt"
+	"os"
+
 	"github.com/go-kit/kit/endpoint"
 	"github.com/nats-io/go-nats"
+	log "github.com/sirupsen/logrus"
 )
 
 // Server wraps an endpoint and implements grpc.Handler.
 type Server struct {
-	conn   nats.Conn
 	e      endpoint.Endpoint
 	dec    DecodeRequestFunc
 	enc    EncodeResponseFunc
@@ -25,14 +27,12 @@ type Server struct {
 // definitions to individual handlers. Request and response objects are from the
 // caller business domain, not gRPC request and reply types.
 func NewServer(
-	conn nats.Conn,
 	e endpoint.Endpoint,
 	dec DecodeRequestFunc,
 	enc EncodeResponseFunc,
 	options ...ServerOption,
 ) *Server {
 	s := &Server{
-		conn:   conn,
 		e:      e,
 		dec:    dec,
 		enc:    enc,
@@ -68,6 +68,15 @@ func ServerErrorLogger(logger log.Logger) ServerOption {
 // MsgHandler implements the MsgHandler type.
 func (s Server) MsgHandler(msg *nats.Msg) {
 
+	urls := fmt.Sprint(os.Getenv("NATS_SERVER"), ", ", fmt.Sprintf("nats://%v:%v", os.Getenv("NATS_SERVICE_HOST"), os.Getenv("NATS_SERVICE_PORT")))
+
+	s.logger.Info(urls)
+
+	nc, err := nats.Connect(urls)
+	if err != nil {
+		s.logger.Error("Can't connect: %v\n", err)
+	}
+
 	// Non-nil non empty context to take the place of the first context in th chain of handling.
 	ctx := context.TODO()
 
@@ -89,5 +98,5 @@ func (s Server) MsgHandler(msg *nats.Msg) {
 		return
 	}
 
-	s.conn.Publish(msg.Reply, payload)
+	nc.Publish(msg.Reply, payload)
 }

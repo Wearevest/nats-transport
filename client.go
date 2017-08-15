@@ -12,7 +12,7 @@ import (
 
 //Client wraps a nats connection and provides a subject that implements it
 type Client struct {
-	client      nats.Conn
+
 	serviceName string
 	subject     string
 	enc         EncodeRequestFunc
@@ -25,7 +25,6 @@ type Client struct {
 // NewClient constructs a usable Client for a single remote endpoint.
 
 func NewClient(
-	cc nats.Conn,
 	serviceName string,
 	subject string,
 	enc EncodeRequestFunc,
@@ -34,7 +33,6 @@ func NewClient(
 	options ...ClientOption,
 ) *Client {
 	c := &Client{
-		client:  cc,
 		subject: fmt.Sprintf("/%s/%s", serviceName, subject),
 		enc:     enc,
 		dec:     dec,
