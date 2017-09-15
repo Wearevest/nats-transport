@@ -83,7 +83,7 @@ func (s Server) MsgHandler(msg *nats.Msg) {
 	// Non-nil non empty context to take the place of the first context in th chain of handling.
 	ctx := context.TODO()
 
-	request, err := s.dec(msg)
+	request, err := s.dec(ctx, msg)
 	if err != nil {
 		s.logger.Error("err", err)
 		return
@@ -95,7 +95,7 @@ func (s Server) MsgHandler(msg *nats.Msg) {
 		return
 	}
 
-	payload, err := s.enc(response)
+	payload, err := s.enc(ctx, response)
 	if err != nil {
 		s.logger.Error("err", err)
 		return

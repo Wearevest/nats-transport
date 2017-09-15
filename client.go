@@ -94,7 +94,7 @@ func (c Client) Endpoint() endpoint.Endpoint {
 		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
-		req, err := c.enc(request)
+		req, err := c.enc(ctx,request)
 		if err != nil {
 			return nil, err
 		}
@@ -107,7 +107,7 @@ func (c Client) Endpoint() endpoint.Endpoint {
 		//	ctx = f(ctx, header, trailer)
 		//}
 
-		response, err := c.dec(msg)
+		response, err := c.dec(ctx, msg)
 		if err != nil {
 			return nil, err
 		}
