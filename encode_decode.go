@@ -2,7 +2,6 @@ package nats
 
 import (
 	"context"
-
 	"github.com/nats-io/go-nats"
 )
 
